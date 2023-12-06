@@ -3,7 +3,7 @@
 double ctok(double c)
 {
 	// input temperature in Celcius (max value is -273.15 as that's absolute 0)
-	double ctok_conversion = 273.15;
+	constexpr double ctok_conversion = 273.15;
 	if (c < -ctok_conversion)
 		throw runtime_error("<ctok>: Can not have an input lower than -273.15 (absolute 0).\n");
 	/* if we want to silently fail do the following instead:
@@ -15,8 +15,8 @@ double ctok(double c)
 double ktoc(double k)
 {
 	// input temperature in Kelvin (min value is 0)
-	double ktoc_conversion {-273.15};
-	double absolute_zero {0.};
+	constexpr double ktoc_conversion {-273.15};
+	constexpr double absolute_zero {0.};
 	if (k < absolute_zero)
 		throw runtime_error("<ktoc>: Can not have an input lower than absolute 0.");
 	return k + ktoc_conversion;
@@ -36,8 +36,7 @@ double ctok(double temp, bool invert_direction)
 }
 int main()
 try{
-	
-	double ctok_conversion {273.15};
+	constexpr double ctok_conversion {273.15};  // defining this twice to keep the other functions independent.
 	double temp {-(ctok_conversion + 1.)}; // input temperature
 	char current_unit {' '}; 
 	// Get input to allow user to define which operation to run
