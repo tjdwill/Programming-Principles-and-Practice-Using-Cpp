@@ -2,15 +2,12 @@
 #include "../std_lib_facilities.h"
 
 /*
-Task: Read in and sum 'N' integers that a user provides. Handle all inputs
-and errors.
+	Testing some inputs for vector push backs. I'm trying to figure out
+ 	if there is a standard way to ensure *only* a certain type is appended
+  	to a given vector.
 
-Thinking:
-
-The user can input anything. To prevent reading in an undesired value
-(char, string, or float), can I use list-style initialization {} for the
-vector?
-Will this prevent narrowing for subsequent values appended to the vector?
+   	UPDATE: I think the check is done automatically based on re-reading the material in
+	section 4.6 "Vectors".
 */
 
 int main()
