@@ -32,7 +32,7 @@ int main()
 double ctok(double c)
 {
 	// input temperature in Celcius (max value is -273.15 as that's absolute 0).
-	double ctok_conversion = 273.15;
+	constexpr double ctok_conversion = 273.15;
 	if (c < -ctok_conversion)
 		throw runtime_error("<ctok>: Can not have an input lower than -273.15 (absolute 0).\n");
 	/* if we want to silently fail do the following instead:
@@ -43,7 +43,7 @@ double ctok(double c)
 int main()
 {
 	// redefine the conversion; I split the two so ctok is entirely independent.
-	double ctok_conversion = 273.15;
+	constexpr double ctok_conversion = 273.15;
 	double c = -(ctok_conversion + 1.);
 	cout << "Celcius: ";
 	cin >> c;
