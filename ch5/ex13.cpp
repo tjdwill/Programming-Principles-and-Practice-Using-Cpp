@@ -10,17 +10,21 @@ constexpr int num_bulls {4};
 int pow(int base, int exponent){
 	// Raise a base to the `exponent`th power
 	// using ints, so we can only use positive exponents.
+	
 	if (exponent < 0)
 		error("<pow>: This function only handles positive exponents\n");
+	
 	int out {1};
 	for (int n {exponent}; n > 0; --n){
 		out *= base;
 	}
+    
 	return out;
 }
 
 bool is_element(int num, vector<int> numbers){
-	// test if a number is an element of a vector of integers.
+	// Test if a number is an element of a vector of integers.
+    
 	bool output {false};
 	for (int i {0}; i < numbers.size(); ++i){
 		if (num == numbers[i]){
@@ -28,6 +32,7 @@ bool is_element(int num, vector<int> numbers){
 			break;
 		}
 	}
+    
 	return output;
 }
 
@@ -51,25 +56,26 @@ vector<int> get_guess(){
 		Example: 
 		5483 = 5*1000 + 4*100 + 8*10 + 3*1
 	*/
-
-	int temp {usr_input};
-	int factor {0}; // if we divide by zero, something is wrong.
-	int index {-1};
-	int digit {-1}; // var. for calculated digit.
-	vector<int> guess(size); // number of places.
     // initialize guess vector for digit uniqueness query
+    vector<int> guess(size);
 	for (int i {0}; i < guess.size(); ++i){
 		guess[i] = -1; 
 	}
+    
+	int temp {usr_input};
+	int factor {0}; // if we divide by zero, something is wrong.
+	int index {-1};
+	int digit {-1}; 
 	for (int i {size - 1}; i >= 0; --i){
 		factor = pow(10, i);
-		index = (size-1)-i; // preserve proper ordering
-		digit = temp / factor; // relying on integer division truncation.
-		// validate uniqueness of digits
+		index = (size-1)-i;
+		digit = temp / factor; 
+		
 		if (is_element(digit, guess))
 			error("Input number must have non-repeat digits (ex. 5678).\n");
 		else
 			guess[index] = digit;
+        
 		temp -= (digit*factor);
 	}
 	return guess;
@@ -87,11 +93,12 @@ vector<int> bulls_and_cows(vector<int> guess, vector<int> answer){
 	
 	if (guess.size() != answer.size())
 		error("Guess and answer have differing number of digits.\n");
+    
 	int bulls {0};
 	int cows {0};
 	
-	// for each element in guess, iterate over answer and check if the value
-	// is present and what place it is in. Update trackers as necessary.
+	// For each element in guess, iterate over answer and check if the value
+	// is present and what place it's in. Update trackers as necessary.
 	int guess_digit {-1};
 	int answer_digit {-1};
 	for (int i {0}; i < guess.size(); ++i){
@@ -113,10 +120,11 @@ int main()
 try{
 	cout << "Bulls and Cows!\n";
 
-	int seed {}; // for randomization
+	int seed {};
 	cout << "Input a randomization number: ";
 	cin >> seed;
 	cout <<'\n' << "Beginning Game.\n\n";
+    
 	bool usr_stop {false};
 	bool game_won {false};
 	vector <int> answer (num_bulls);
@@ -161,8 +169,9 @@ try{
 					<< "Cows: " << bnc[1] << "\n\n";
 			}
 		}
+        
 		cout << "You win!\n\n";
-		cout << "Play again? (y):  ";
+		cout << "Play again? (y): ";
 		cin >> response;
 		if (!(response == 'y' || response == 'Y'))
 			usr_stop = true;
