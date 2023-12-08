@@ -15,9 +15,11 @@ try{
 	if (n < 1){
 		error("You must sum at least one value.\n");
 	}
-	cout << "\nPlease input the integer sequence (press '|' to signal the end)"
-	<< ": \n";
-	
+    
+	cout
+        << "\nPlease input the integer sequence (press '|' to signal the end)"
+        << ": \n";
+    
 	int curr_input;
 	while(cin >> curr_input)
 		int_list.push_back({curr_input});
@@ -32,7 +34,8 @@ try{
 	if (n > int_list.size()){
 		error("Not enough integers to add.\n");
 	}
-	int sum {0};
+	
+    int sum {0};
 	int prev_val {0};
 	int curr_val {0};
 	int prev_sum {0};
