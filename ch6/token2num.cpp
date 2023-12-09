@@ -45,12 +45,13 @@ int main(){
 
 	// TEST: Begin with a pre-defined string
 	// cout << setprecision(17);
-	string predef; //{"2 + 2 / 5 () jlie %^$ * 01234.56789"};
+	string predef {}; //{"2 + 2 / 5 () jlie %^$ * 01234.56789"};
 	vector<Token> tokens {};
-	
+	cout << "Please insert expression (Unix: Press Return -> Ctrl+d to enter):\n";
 
-	cout << "Please insert expression:\n";
-	cin >> predef;
+	string temp;
+	while(cin >> temp)
+		predef += temp;
 	for (char x: predef){
 		try{
 			tokens.push_back(get_token(x));
