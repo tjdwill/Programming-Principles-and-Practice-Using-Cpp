@@ -37,17 +37,20 @@ class TokenGenError {};
 Token get_token(char input);
 vector<Token> compose_nums(vector<Token> tokens);
 double get_num(vector<double> nondecimals, vector<double> decimals);
-
+double pow(double base, double exp);
 
 int main(){
 	// read user input into a string
 	// only output valid tokens.
 
 	// TEST: Begin with a pre-defined string
-	string predef {"2 + 2 / 5 () jlie %^$ * 01234.56789"};
+	cout << setprecision(17);
+	string predef; //{"2 + 2 / 5 () jlie %^$ * 01234.56789"};
 	vector<Token> tokens {};
-	cout << "Initialized vector size: " << tokens.size() << '\n';
+	
 
+	cout << "Please insert expression:\n";
+	cin >> predef;
 	for (char x: predef){
 		try{
 			tokens.push_back(get_token(x));
@@ -68,6 +71,18 @@ int main(){
 			cout << "No   ";
 		cout << "Value: " << token.value << '\n';
 	}
+	cout << "\nComposed Token:\n";
+	for (Token token: compose_nums(tokens)){
+        cout
+            << "Kind: " << token.kind << ' '
+            << " Numeric?: ";
+        if (token.is_num)
+            cout << "Yes  ";
+        else
+            cout << "No   ";
+        cout << "Value: " << token.value << '\n';
+    }
+
 }
 
 
@@ -119,7 +134,6 @@ vector<Token> compose_nums(vector<Token> tokens){
 	bool decimal_found {false};
 	Token token;
 	for (int i {0}; i < tokens.size(); ++i){
-
 		token = tokens[i];
 		
 		// We don't have vector.clear yet, so...
@@ -144,7 +158,7 @@ vector<Token> compose_nums(vector<Token> tokens){
 			If you find the next operator, update the outer loop variable and
 			break the loop. Also, reset the decimal found variable if necessary.
 		*/
-			for (int j {i+1}; j < tokens.size() - 1; ++j){
+			for (int j {i+1}; j < tokens.size(); ++j){
 				token = tokens[j];
 				if (token.is_num){
 					// enter number-gathering context
@@ -167,6 +181,14 @@ vector<Token> compose_nums(vector<Token> tokens){
 									decimals.push_back(token.value);
 								else
 									nondecimals.push_back(token.value);
+								// prevent re-iterating if a number is the last element in the expression.	
+								if (j == tokens.size() - 1){
+									i = j;
+									Token composed_tkn = {
+										composed_kind, true, get_num(nondecimals, decimals)
+									};
+									updated_tokens.push_back(composed_tkn);
+								}
 							}
 							break;
 					}
@@ -190,7 +212,190 @@ vector<Token> compose_nums(vector<Token> tokens){
 }
 
 double get_num(vector<double> nondecimals, vector<double> decimals){
-	return 0.;
+	// assemble the correct number from nondecimal and decimal parts
+	string func_name {"<get_num>: "};
+	double left {0};
+	double right {0};
+	
+	int index {0};
+	double temp;
+	double factor;
+	// calculate the left and right sides of the decimal
+	for (int i = nondecimals.size() - 1; i >= 0; --i){
+		index = nondecimals.size() - 1 - i;
+		temp = nondecimals[index];
+		factor = pow(10, i);
+		left += temp * factor;
+	} 
+	for (int i = decimals.size() - 1; i >= 0; --i){
+		index = decimals.size() - 1 - i;
+		temp = decimals[index];
+		factor = pow(10, i);
+		right += temp * factor;
+	}
+	right /= pow(10, decimals.size());  // doing it this way to save on floating-point precision errors
+
+	cout << func_name + "Left: " << left << " Right: " << right << '\n';
+	return left + right;
+}
+
+double square(double x){
+	return x*x;
+}
+
+bool is_even(int x){
+	return x % 2 == 0;
+}
+double iter(double base, int exp, double current){
+	// an iterator for the pow function
+	constexpr double stop {0.};
+	if (exp == stop)
+		return current;
+	else if (is_even(exp))
+		return iter(square(base), exp/2, current);
+	else
+		return iter(base, exp - 1., base * current);
+}
+double pow(double base, int exp){
+	if (exp < 0)
+		return iter(1/base, exp, 1);
+	else
+		return iter(base, exp, 1);
 }
 
 
+/*
+TEST
+
+Input: "2 + 2 / 5 () jlie %^$ * 01234.56789"
+
+❯ ./exec/token2num
+Initialized vector size: 0
+
+Received tokens:
+Kind: k  Numeric?: Yes  Value: 2
+Kind: +  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 2
+Kind: /  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 5
+Kind: (  Numeric?: No   Value: 0
+Kind: )  Numeric?: No   Value: 0
+Kind: %  Numeric?: No   Value: 0
+Kind: ^  Numeric?: No   Value: 0
+Kind: *  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 0
+Kind: k  Numeric?: Yes  Value: 1
+Kind: k  Numeric?: Yes  Value: 2
+Kind: k  Numeric?: Yes  Value: 3
+Kind: k  Numeric?: Yes  Value: 4
+Kind: .  Numeric?: Yes  Value: -1
+Kind: k  Numeric?: Yes  Value: 5
+Kind: k  Numeric?: Yes  Value: 6
+Kind: k  Numeric?: Yes  Value: 7
+Kind: k  Numeric?: Yes  Value: 8
+Kind: k  Numeric?: Yes  Value: 9
+
+ Composed Token:
+<get_num>: Left: 2 Right: 0
+<get_num>: Left: 2 Right: 0
+<get_num>: Left: 5 Right: 0
+<get_num>: Left: 1234 Right: 0.56789
+Kind: c  Numeric?: Yes  Value: 2
+Kind: +  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 2
+Kind: /  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 5
+Kind: (  Numeric?: No   Value: 0
+Kind: )  Numeric?: No   Value: 0
+Kind: %  Numeric?: No   Value: 0
+Kind: ^  Numeric?: No   Value: 0
+Kind: *  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 1234.57
+
+========================
+Adjusted cout precision
+========================
+
+❯ clang++ token2num.cpp -o ./exec/token2num --std=c++11 -Wall -Wpedantic
+❯ ./exec/token2num
+Initialized vector size: 0
+
+Received tokens:
+Kind: k  Numeric?: Yes  Value: 2
+Kind: +  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 2
+Kind: /  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 5
+Kind: (  Numeric?: No   Value: 0
+Kind: )  Numeric?: No   Value: 0
+Kind: %  Numeric?: No   Value: 0
+Kind: ^  Numeric?: No   Value: 0
+Kind: *  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 0
+Kind: k  Numeric?: Yes  Value: 1
+Kind: k  Numeric?: Yes  Value: 2
+Kind: k  Numeric?: Yes  Value: 3
+Kind: k  Numeric?: Yes  Value: 4
+Kind: .  Numeric?: Yes  Value: -1
+Kind: k  Numeric?: Yes  Value: 5
+Kind: k  Numeric?: Yes  Value: 6
+Kind: k  Numeric?: Yes  Value: 7
+Kind: k  Numeric?: Yes  Value: 8
+Kind: k  Numeric?: Yes  Value: 9
+
+Composed Token:
+<get_num>: Left: 2 Right: 0
+<get_num>: Left: 2 Right: 0
+<get_num>: Left: 5 Right: 0
+<get_num>: Left: 1234 Right: 0.56789000000000001
+Kind: c  Numeric?: Yes  Value: 2
+Kind: +  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 2
+Kind: /  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 5
+Kind: (  Numeric?: No   Value: 0
+Kind: )  Numeric?: No   Value: 0
+Kind: %  Numeric?: No   Value: 0
+Kind: ^  Numeric?: No   Value: 0
+Kind: *  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 1234.56789
+*/
+
+/*
+TEST: User Input
+
+Please insert expression:
+(5*596)/(2.5789)  + 117 % 8
+
+Received tokens:
+Kind: (  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 5
+Kind: *  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 5
+Kind: k  Numeric?: Yes  Value: 9
+Kind: k  Numeric?: Yes  Value: 6
+Kind: )  Numeric?: No   Value: 0
+Kind: /  Numeric?: No   Value: 0
+Kind: (  Numeric?: No   Value: 0
+Kind: k  Numeric?: Yes  Value: 2
+Kind: .  Numeric?: Yes  Value: -1
+Kind: k  Numeric?: Yes  Value: 5
+Kind: k  Numeric?: Yes  Value: 7
+Kind: k  Numeric?: Yes  Value: 8
+Kind: k  Numeric?: Yes  Value: 9
+Kind: )  Numeric?: No   Value: 0
+
+Composed Token:
+<get_num>: Left: 5 Right: 0
+<get_num>: Left: 596 Right: 0
+<get_num>: Left: 2 Right: 0.57889999999999997
+Kind: (  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 5
+Kind: *  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 596
+Kind: )  Numeric?: No   Value: 0
+Kind: /  Numeric?: No   Value: 0
+Kind: (  Numeric?: No   Value: 0
+Kind: c  Numeric?: Yes  Value: 2.5789
+Kind: )  Numeric?: No   Value: 0
+*/
