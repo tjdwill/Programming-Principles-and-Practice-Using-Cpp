@@ -44,7 +44,7 @@ int main(){
 	// only output valid tokens.
 
 	// TEST: Begin with a pre-defined string
-	cout << setprecision(17);
+	// cout << setprecision(17);
 	string predef; //{"2 + 2 / 5 () jlie %^$ * 01234.56789"};
 	vector<Token> tokens {};
 	
@@ -235,7 +235,7 @@ double get_num(vector<double> nondecimals, vector<double> decimals){
 	}
 	right /= pow(10, decimals.size());  // doing it this way to save on floating-point precision errors
 
-	cout << func_name + "Left: " << left << " Right: " << right << '\n';
+	// cout << func_name + "Left: " << left << " Right: " << right << '\n';
 	return left + right;
 }
 
