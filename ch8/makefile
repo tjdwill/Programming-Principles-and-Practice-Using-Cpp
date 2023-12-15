@@ -15,6 +15,7 @@ runtime_error.o:
 # Directives (Psuedo-targets)
 clean:
 	rm $(objects)
-clean_all: clean
+clean_exec:
 	rm $(executable_dir)/*
+clean_all: clean_exec clean
 	
