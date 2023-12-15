@@ -19,5 +19,7 @@ d02:
 all: d02 use  # makes all of the recipies
 
 clean:
-	rm $(executable_dir)/*
 	rm $(drill_objects)
+clean_exec:
+	rm $(executable_dir)/*
+clean_all: clean_exec clean
