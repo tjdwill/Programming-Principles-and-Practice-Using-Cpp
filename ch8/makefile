@@ -1,6 +1,6 @@
 # Var defs
 ex03_objects = ex02.o runtime_error.o
-objects = $(ex03_objects)  # To be appended to
+objects = $(ex03_objects)  # In progress
 executable_dir = ./exec
 
 
