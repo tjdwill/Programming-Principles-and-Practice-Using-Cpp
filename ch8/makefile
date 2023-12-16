@@ -8,6 +8,10 @@ executable_dir = ./exec
 
 # Targets
 all:
+ex11:
+	clang++ ex11.cpp -o $(executable_dir)/ex11 --std=c++11 -Wall -Wpedantic
+ex10:
+	clang++ ex10.cpp -o $(executable_dir)/ex10 --std=c++11 -Wall -Wpedantic
 ex07: $(ex07_objects)
 	clang++ ex07.cpp $(ex07_objects) -o $(executable_dir)/ex07 --std=c++11 -Wall -Wpedantic
 ex06.o:
