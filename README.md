@@ -6,5 +6,5 @@ I do not intend to implement every problem for a given chapter. For some (most?)
 
 ## Tooling (in progress)
 
-Compiler: Clang
-GNU Make (scripting)
+- Compiler: Clang
+- GNU Make (scripting)
