@@ -1,4 +1,4 @@
-# Programming-Principles-and-Practice-Using-Cpp
+# Programming: Principles and Practice Using C++
 
 Selected exercises for Bjarne Stroustrup's *Programming: Principles and Practice Using C++ (2nd ed.)*
 
