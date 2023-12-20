@@ -11,7 +11,7 @@ bool is_valid(const vector<int>&);
 bool is_valid (const int&); // Ah, here is one case where we can do this (See Exercise 8.14 in book).
 bool is_unique(vector<string>);
 bool can_insert(const string&, const vector<string>&);
-// bool are_valid(const vector<string>&, const vector<int>&);
+
 
 // Create a NamePairs class
 // All of the previous versions of this problem assume unique names, so I will
@@ -25,7 +25,8 @@ class NamePairs{
     // methods
         void update();
         void sort();
-        void print(); 
+        const vector<string>& get_names() const;
+        const vector<int>& get_ages() const;
     // Exception Def
     class InitError {
         public:
@@ -43,4 +44,7 @@ class NamePairs{
         void read_ages();
 }; // class `NamePairs`
 
-}; // namespace `ex02`
+ostream& operator<<(ostream&, const NamePairs&);
+bool operator==(const NamePairs&, const NamePairs&);
+bool operator!=(const NamePairs&, const NamePairs&);
+} // namespace `ex02`

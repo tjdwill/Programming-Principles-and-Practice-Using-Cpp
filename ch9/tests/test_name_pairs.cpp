@@ -21,19 +21,28 @@ try{
     // ex02::NamePairs test_invalid_age {valid_names, invalid_ages};
     // ex02::NamePairs test_invalid_sz {valid_names, invalid_ages_sz};
 
-    test_default.print();
-    test_valid.print();
+    cout << test_default;
+    cout << test_valid;
 
     cout << "\nSorted:";
     test_default.sort();
     test_valid.sort();
-    test_default.print();
-    test_valid.print();
+    cout << test_default;
+    cout << test_valid;
     
     cout << "\nTesting name-pair updates.\n";
     test_valid.update();
-    test_valid.print();
+    cout << test_valid;
     cout << "Success!\n";
+
+    cout << "\nEquality Tests\n";
+    if (test_default == ex02::NamePairs {} &&
+        test_valid == ex02::NamePairs (test_valid.get_names(), test_valid.get_ages())
+    )
+        cout << "== test passed.\n";
+    if (test_default != test_valid)
+        cout << "!= test passed.\n";
+
 }
 catch(ex02::NamePairs::InitError& e){
     cerr << "Error: " << e.what() << '\n';
