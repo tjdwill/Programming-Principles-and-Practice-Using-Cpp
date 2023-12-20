@@ -6,11 +6,13 @@ const string stop {"STOP"};
 constexpr int min_age {0};
 // constexpr int max_age {}; // if needed in future.
 // Constructors
+
 /* 
 I was going to make the default constructor call `update`, but I'm not sure
 that's the desirable behavior from the standpoint of a user. I'll just leave
 the initalization to a blank state.
 */
+
 NamePairs::NamePairs(){};
 
 NamePairs::NamePairs(const vector<string>& name_list, const vector<int>& age_list)
@@ -26,12 +28,9 @@ NamePairs::NamePairs(const vector<string>& name_list, const vector<int>& age_lis
 }
 //----------------------------------------------------------------------------
 // Methods
-string NamePairs::InitError::what(){
-    return err_msg;
-}
+string NamePairs::InitError::what() {return err_msg;}
 
 void NamePairs::update(){
-
     try{
         read_names();
         read_ages();
@@ -151,5 +150,4 @@ bool can_insert(const string& str, const vector<string>& strs){
     }
     return true;
 }
-
 };  // namespace `ex02`
