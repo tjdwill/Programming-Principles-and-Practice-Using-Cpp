@@ -20,6 +20,20 @@ try{
     // ex02::NamePairs test_invalid2 {invalid_names2, valid_ages};
     // ex02::NamePairs test_invalid_age {valid_names, invalid_ages};
     // ex02::NamePairs test_invalid_sz {valid_names, invalid_ages_sz};
+
+    test_default.print();
+    test_valid.print();
+
+    cout << "\nSorted:";
+    test_default.sort();
+    test_valid.sort();
+    test_default.print();
+    test_valid.print();
+    
+    cout << "\nTesting name-pair updates.\n";
+    test_valid.update();
+    test_valid.print();
+    cout << "Success!\n";
 }
 catch(ex02::NamePairs::InitError& e){
     cerr << "Error: " << e.what() << '\n';
