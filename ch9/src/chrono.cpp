@@ -4,29 +4,60 @@ int abs(int x) {return (x < 0) ? -x:x;}
 
 namespace Chrono{
 
+
+//----------------------------------------------------------------------------
+// Helper Function Implementations
+// Get the LOGIC correct first; we'll do invariant checks later.
+
 bool is_leap(const int yr){
     /*
         Leap year every four years except years divisible by 100 but not 400.
     */ 
     return !(yr % 4 || (yr % 100 == 0 && yr % 400));
 }
-bool is_leap(const Date& dd) {return is_leap(dd.get_year());}
 
-int yrs_to_days(const int yr){
-    // Given a year `yr`, calculate number of days from 1 Jan <default year>
-    // to 1 Jan <yr>
-    // Assumes yr >= default
-    int days {};
-    
-    int yrs_remaining {abs(dft_yr - yr)};
-    int num_leaps = yrs_remaining / yrs_per_leap;
-    days += num_leaps * days_per_julian_cycle;
-    yrs_remaining -= num_leaps * yrs_per_leap;
+// bool is_leap(const Date& dd) {return is_leap(dd.get_year());}
 
-
+long int date_in_days(const int d, const Month m, const int y, const int start_yr){
+    // Assume we begin from 1 Jan. 
+    long int elapsed{};
+    elapsed += yr_to_days(y, start_yr);
+    elapsed += months_to_days(Month::jan, m);
+    if (is_leap(y) && m > Month::feb) ++elapsed;
+    elapsed += d - 1;  // adjust for the first day (1 Jan).
+    return elapsed;
 }
 
-int num_leaps(int yr, int start_yr = dft_yr){
+int months_to_days(const Month start, const Month end){
+    // Returns how many days have elapsed from 1 <Month 1> *to* 1 <Month 2>
+    // Assumes normal 365 day calendar year.
+    // Assumes all months are within the same year (only forward movement)
+    // Ex. March to May (31 + 30) = 61 days have elapsed.
+    
+    int days {};
+    for (int i = int(start); i < int(end); ++i) days += days_in_month[i];
+    return days;
+}
+
+long int yr_to_days(const int yr, const int start_yr){
+    /* 
+        Given a year `yr`, calculate number of days from 
+        1 Jan <default year> to 1 Jan <yr> 
+        Assumes yr >= start_yr. 
+        For example, yrs_to_days(400, 0) should equal 146,097 days
+        (a full Gregorian cycle)
+    */
+    int days {};
+    
+    int nleaps {num_leaps(yr, start_yr)};
+    int elapsed {yr - start_yr};
+    days += nleaps * 366;
+    elapsed -= nleaps;
+    days += elapsed * 365;
+    return days;
+}
+
+int num_leaps(int yr, int start_yr){
     // Returns number of leap years that have elapsed
     // between 1 Jan <start> and 1 Jan <yr>
     if (yr < start_yr){

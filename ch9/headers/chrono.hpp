@@ -13,7 +13,6 @@
     - Instead of the 400-year leap-year cycle, I'm going to use a 4-year cycle
     such that 
             num_of_days_per_cycle = (365*3) + 366
-    
 */
 
 #include "../../std_lib_facilities.h"
@@ -33,8 +32,9 @@ const vector<int> leap_cycle {366, 365, 365, 365};
 constexpr int dft_yr {1970};
 const Month dft_m = Month::jan;
 constexpr int dft_d {1};
-constexpr int days_per_julian_cycle {365*3 + 366};
 constexpr int gregorian_correction {3}; // 3 days every 400 yrs
+constexpr int days_per_julian_cycle {365*3 + 366};
+constexpr int days_per_gregorian_cycle = days_per_julian_cycle*100 - gregorian_correction;  // 146_097
 constexpr int days_per_year {365};
 constexpr int yrs_per_leap {4};
 
@@ -46,7 +46,7 @@ class Date{
         // Constructors
         Date();
         Date(int n);
-        Date(int y, Month m, int d);
+        Date(int d, Month m, int y);
         
         // Methods
         void today() const;
@@ -71,8 +71,10 @@ class Date{
 // Helpers
 bool is_leap(const Date&);
 bool is_leap(const int);
-int yr_to_days(const int yr);
+long int date_in_days(const int d, const Month m, const int y, const int start_yr=dft_yr);
+long int yr_to_days(const int yr, const int start_yr=dft_yr);
+int months_to_days(const Month, const Month);
 int greg_cycle_yr (const int yr);
-int get_correction_offset(const int yr, const int start_yr = dft_yr);
+int get_correction_offset(const int yr, const int start_yr=dft_yr);
 int num_leaps(int yr, int start_yr = dft_yr);
 } // namespace Chrono
