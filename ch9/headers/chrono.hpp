@@ -71,10 +71,12 @@ class Date{
 // Helpers
 bool is_leap(const Date&);
 bool is_leap(const int);
+bool is_centennial(const int);
+bool is_new_greg(const int);
 long int date_in_days(const int d, const Month m, const int y, const int start_yr=dft_yr);
 long int yr_to_days(const int yr, const int start_yr=dft_yr);
 int months_to_days(const Month, const Month);
 int greg_cycle_yr (const int yr);
-int get_correction_offset(const int yr, const int start_yr=dft_yr);
 int num_leaps(int yr, int start_yr = dft_yr);
+vector<int> days_to_date(long int days, int start_yr=dft_yr);
 } // namespace Chrono

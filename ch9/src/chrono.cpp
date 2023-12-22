@@ -18,6 +18,10 @@ bool is_leap(const int yr){
 
 // bool is_leap(const Date& dd) {return is_leap(dd.get_year());}
 
+bool is_centennial(const int yr){return !is_leap(yr) && yr % 100 == 0;}
+
+bool is_new_greg(const int yr) {return is_leap(yr) && yr % 400 == 0;}
+
 long int date_in_days(const int d, const Month m, const int y, const int start_yr){
     // Assume we begin from 1 Jan. 
     long int elapsed{};
@@ -50,63 +54,144 @@ long int yr_to_days(const int yr, const int start_yr){
     int days {};
     
     int nleaps {num_leaps(yr, start_yr)};
-    int elapsed {yr - start_yr};
+    int remaining {yr - start_yr};
     days += nleaps * 366;
-    elapsed -= nleaps;
-    days += elapsed * 365;
+    remaining -= nleaps;
+    days += remaining * 365;
     return days;
 }
 
 int num_leaps(int yr, int start_yr){
-    // Returns number of leap years that have elapsed
-    // between 1 Jan <start> and 1 Jan <yr>
-    if (yr < start_yr){
-        int temp {yr};
-        yr = start_yr;
-        start_yr = temp;
+    // Return the number of leap years from `start_yr` to `yr`.
+    // Assumes both years begin 1 Jan.
+    /*
+        This is a very involved function because it works through multiple
+        stages:
+        0. Full Gregorian Cycles
+        1. Partial Gregorian Cycles
+        2. Full Leap Cycles
+        3. Partial Leap Cycles
+
+        There are many edge cases to consider in order to get the correct
+        behavior; they will be shown in the code.
+    */;
+
+    constexpr int leaps_per_greg {97};
+    constexpr int leaps_per_cent {24};
+    constexpr int leaps_per_cycle {1};
+    int leaps {};
+    int remaining {yr - start_yr};
+    int adjusts {}; // for debugging
+    int elapsed {};
+    int current_yr {start_yr};
+
+    //========================
+    // Full Gregorian Cycles
+    //========================
+
+    int full_greg {remaining / one_greg_cycle};
+    leaps += full_greg * leaps_per_greg;
+    elapsed = full_greg * one_greg_cycle;
+    remaining -= elapsed;
+    current_yr += elapsed;
+
+    //==========================
+    // Partial Gregorian Cycles
+    //==========================
+
+    /*
+        Now we get to edge cases. A partial gregorial cycle is one century
+        because centuries are used to determine which leap years to skip. For
+        centennials (which I use to mean the years that are divisible by 100
+        but not 400), we use the normal 365 day calendar year.
+
+        As a result, for a given centennial, there are 24 leap years. However,
+        there is the possiblity that we cross over the beginning of a new
+        Gregorian cycle which *is* a leap year. Therefore, this must be taken
+        into account in the calculation.
+
+        Also note, at this stage there are at most 399 remaining years.
+    */
+
+    int partial_greg {remaining / 100};
+    int till_new {one_greg_cycle - greg_cycle_yr(current_yr)};  // yrs until new cycle
+    if (
+        partial_greg*100 > till_new ||  // strictly greater because we need the year to actually pass.
+        (is_new_greg(current_yr) && partial_greg > 0)
+    ){
+        leaps += 1;
+        adjusts += 1;
     }
 
-    int leaps = ((yr)/4 - start_yr/4) - get_correction_offset(yr, start_yr);
-    /*
-        Correct leapyear cases; For example, if yr == 1972, the leap year has not
-        elapsed yet, so we can't count it.
+    leaps += partial_greg * leaps_per_cent;
+    elapsed = partial_greg * 100;
+    current_yr += elapsed;
+    remaining -= elapsed;
 
-        On the other end, if the start_yr *is* a leap year, we want to count it as 
-        such. We can see if both start and current are leaps, and start == current, 
-        the offset becomes 0.
+
+    //===========================
+    // Full Leap (Julian) Cycles
+    //===========================
+
+    /*
+        Here I look for the normal 4-year leap cycles. However, one caveat is
+        that I have to search for centennial years. Becuase full leap cycles
+        include leap years every four years, without correction we would have
+        an extra day. Instead, for cycles that include centennial years, each
+        year has 365 days.
+
+        At this point, remaining years [0, 99].
     */
-    if (is_leap(yr)) --leaps;
-    if (is_leap(start_yr)) ++leaps;
+
+    int full_leaps {remaining / 4};
+    leaps += full_leaps;
+
+    int next_cent {(current_yr + full_leaps*4)/ 100};  // century after applying time skip.
+    int this_cent {current_yr/ 100};
+    if (
+        (full_leaps && is_centennial(current_yr)) ||
+        (
+            next_cent > this_cent && 
+            is_centennial(next_cent*100) && 
+            remaining - full_leaps*4 > 0  // is there another year after the time skip?
+        )
+    ){
+        leaps -= 1;
+        adjusts += 1;
+    }
+
+    elapsed = full_leaps * 4;
+    current_yr += elapsed;
+    remaining -= elapsed;
+
+    //=====================
+    // Partial Leap Cycles
+    //=====================
+    
+    /*
+        This is the final stage. Here, we expect the normal 365 day year from
+        whatever remains. However, there is the possibility that we cross a
+        leap year, so that must be accounted for.
+
+        Maximum Remaining Years: 3
+    */
+
+    int partial_leaps {};
+    int till_next_leap {yrs_per_leap - current_yr % yrs_per_leap};
+    if (
+        (remaining > till_next_leap && is_leap(current_yr + till_next_leap)) ||
+        (is_leap(current_yr) && remaining > 0)
+    ){
+        leaps += 1;
+        partial_leaps += 1;
+        adjusts += 1;
+    }
+
+    elapsed = remaining;
+    current_yr += elapsed;
+    remaining -= elapsed; // % 4; // `remaining % 4` is just `remaining`.
+    
     return leaps;
-}
-
-int get_correction_offset(const int yr, const int start_yr){
-    // Get number of leap years to correct the calculation
-    // NOTE: every 100 years skips a leap year unless the year is divisible by 400.
-    /*
-    Example:
-        Year: 1970
-        Where in the leap-cycle?
-        (% 1970 400) -> 370
-        
-        Corrections?
-        (// 370 100) -> 3
-        (% 3 4) -> 3
-        Subtract 3 years from the number of calculated leap_years
-        (// 370 4) -> 92
-        (- 92 3) -> 89 
-
-        89 leap years have passed *since (but not including) the start of the cycle*
-        Year 1600 (meaning we are at a total of 90 when you include 1600)
-
-        There are 30 more years until the end of the cycle (so 7 more leap years).
-        (+ 90 7) -> 97 == leap years in a Gregorian cycle.
-    */
-    constexpr int skip = 100; // skip one leap year after so many years
-    int elapsed = yr - start_yr;
-    int full_cycles = elapsed / one_greg_cycle;
-    int partial = (elapsed % one_greg_cycle) / skip;
-    return full_cycles*gregorian_correction + partial;
 }
 
 int greg_cycle_yr(int yr) {return yr % one_greg_cycle;}
