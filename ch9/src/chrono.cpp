@@ -22,7 +22,7 @@ bool is_centennial(const int yr){return !is_leap(yr) && yr % 100 == 0;}
 
 bool is_new_greg(const int yr) {return is_leap(yr) && yr % 400 == 0;}
 
-long int date_in_days(const int d, const Month m, const int y, const int start_yr){
+long int date_in_days(const int y, const Month m, const int d, const int start_yr){
     // Assume we begin from 1 Jan. 
     long int elapsed{};
     elapsed += yr_to_days(y, start_yr);
@@ -74,7 +74,7 @@ int num_leaps(int yr, int start_yr){
 
         There are many edge cases to consider in order to get the correct
         behavior; they will be shown in the code.
-    */;
+    */
 
     constexpr int leaps_per_greg {97};
     constexpr int leaps_per_cent {24};
@@ -89,9 +89,9 @@ int num_leaps(int yr, int start_yr){
     // Full Gregorian Cycles
     //========================
 
-    int full_greg {remaining / one_greg_cycle};
-    leaps += full_greg * leaps_per_greg;
-    elapsed = full_greg * one_greg_cycle;
+    int full_gregs {remaining / one_greg_cycle};
+    leaps += full_gregs * leaps_per_greg;
+    elapsed = full_gregs * one_greg_cycle;
     remaining -= elapsed;
     current_yr += elapsed;
 
@@ -113,18 +113,18 @@ int num_leaps(int yr, int start_yr){
         Also note, at this stage there are at most 399 remaining years.
     */
 
-    int partial_greg {remaining / 100};
+    int partial_gregs {remaining / 100};
     int till_new {one_greg_cycle - greg_cycle_yr(current_yr)};  // yrs until new cycle
     if (
-        partial_greg*100 > till_new ||  // strictly greater because we need the year to actually pass.
-        (is_new_greg(current_yr) && partial_greg > 0)
+        partial_gregs*100 > till_new ||  // strictly greater because we need the year to actually pass.
+        (is_new_greg(current_yr) && partial_gregs > 0)
     ){
         leaps += 1;
         adjusts += 1;
     }
 
-    leaps += partial_greg * leaps_per_cent;
-    elapsed = partial_greg * 100;
+    leaps += partial_gregs * leaps_per_cent;
+    elapsed = partial_gregs * 100;
     current_yr += elapsed;
     remaining -= elapsed;
 
@@ -196,4 +196,122 @@ int num_leaps(int yr, int start_yr){
 
 int greg_cycle_yr(int yr) {return yr % one_greg_cycle;}
 
+vector<int>yr_from_days(long int days, int start_yr){
+    // Returns the year and remaining days {Year, Remaining} Because the
+    // remaining days will be 0 <= x <= 365 (leap yr), we can just use ints
+    vector<int> data (2);
+    int current_yr {start_yr};
+    long int remaining {days};
+
+    //========================
+    // Full Gregorian Cycles
+    //========================
+    long int full_gregs {remaining / days_per_gregorian_cycle};
+    remaining -= full_gregs * days_per_gregorian_cycle;
+    current_yr += full_gregs * one_greg_cycle;
+
+    //==========================
+    // Partial Gregorian Cycles
+    //==========================
+    int till_new {one_greg_cycle - current_yr % one_greg_cycle};
+    long int partial_gregs {remaining / days_per_cent};
+    if (
+        partial_gregs*100 > till_new ||
+        (is_new_greg(current_yr) && partial_gregs)
+    ){
+        // Consume extra day for leap year
+        --remaining;    
+    }
+    current_yr += partial_gregs * 100;
+    remaining -= partial_gregs * days_per_cent;
+
+    //==================
+    // Full Leap Cycles
+    //==================
+
+    long int full_leaps {remaining / days_per_julian_cycle};
+    long int next_cent {(current_yr + full_leaps*4)/100};
+    long int this_cent {current_yr / 100};
+    if (
+        (full_leaps && is_centennial(current_yr)) ||
+        (
+            next_cent > this_cent &&
+            is_centennial(next_cent * 100) &&
+            remaining - (full_leaps * days_per_julian_cycle) >= days_per_year
+        )
+    ){
+        ++remaining; 
+    }
+    current_yr += full_leaps * 4;
+    remaining -= full_leaps * days_per_julian_cycle;
+
+    //=====================
+    // Partial Leap Cycles
+    //=====================
+
+    /*
+        Walk through this step-by-step. If we can reach the next leap-year, do it.
+        If we have enough to advance to the next year (from the leap year), do so.
+        Finally, account for normal year time.
+    */
+    int till_next_leap {yrs_per_leap - current_yr % yrs_per_leap};
+    long int days_till_leap {till_next_leap * days_per_year};
+    if (is_leap(current_yr)) ++days_till_leap;
+
+    if (remaining >= days_till_leap){
+        current_yr += till_next_leap;
+        remaining -= days_till_leap;
+    }
+
+    if (is_leap(current_yr) && remaining > days_per_year){
+        ++current_yr;
+        remaining -= days_per_year + 1;
+    }
+
+    long int norm_yrs {remaining / days_per_year};
+    if (is_leap(current_yr) && norm_yrs) --norm_yrs;
+    current_yr += norm_yrs;
+    remaining -= norm_yrs * days_per_year;
+
+    if (remaining == days_per_year && !is_leap(current_yr))
+        error("<yr_from_days>: Processing Error. Can't have 365 days remaining on non-leap year.\n");
+    data[0] = current_yr;
+    data[1] = int(remaining);
+
+    return data;
+}
+
+vector<int> month_from_days(int days, int yr){
+
+    if (days > days_per_year) error("<month_from_days>: Max Days (365) Exceeded.\n");
+    int remaining {days};
+    int month = int(Month::jan);
+    vector<int> month_days = days_in_month;
+    if (is_leap(yr)) ++month_days[int(Month::feb)];
+    for (int i {month - int(Month::jan)}; i < days_in_month.size(); ++i){
+        if (remaining >= month_days[i])
+        {
+            remaining -= month_days[i];
+            ++month;
+        }
+        else break;
+    }
+    month -= (int(Month::jan) - 1);  // Adjust for where January begins in enumeration.
+    return vector<int> {month, remaining};  
+}
+
+vector<int> get_date(long int days, int start_yr){
+    // Get an integer vector representing the date {year, month, day}
+    if (days < 0 || start_yr < 0)
+        error("<Chrono::get_date>: Negative time not supported.\n");
+
+    int yr {}, month {}, day {1};
+    vector<int> temp_data = yr_from_days(days, start_yr);
+    yr = temp_data[0];
+    temp_data = month_from_days(temp_data[1], yr);
+    month = temp_data[0];
+    day += temp_data[1];
+
+    return vector<int> {yr, month, day};
+}
 } // namespace Chrono

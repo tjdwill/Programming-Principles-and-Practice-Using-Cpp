@@ -35,6 +35,7 @@ constexpr int dft_d {1};
 constexpr int gregorian_correction {3}; // 3 days every 400 yrs
 constexpr int days_per_julian_cycle {365*3 + 366};
 constexpr int days_per_gregorian_cycle = days_per_julian_cycle*100 - gregorian_correction;  // 146_097
+constexpr int days_per_cent {24 * 366 + 76*365};
 constexpr int days_per_year {365};
 constexpr int yrs_per_leap {4};
 
@@ -46,7 +47,7 @@ class Date{
         // Constructors
         Date();
         Date(int n);
-        Date(int d, Month m, int y);
+        Date(int y, Month m, int d);
         
         // Methods
         void today() const;
@@ -73,10 +74,12 @@ bool is_leap(const Date&);
 bool is_leap(const int);
 bool is_centennial(const int);
 bool is_new_greg(const int);
-long int date_in_days(const int d, const Month m, const int y, const int start_yr=dft_yr);
+long int date_in_days(const int y, const Month m, const int d, const int start_yr=dft_yr);
 long int yr_to_days(const int yr, const int start_yr=dft_yr);
 int months_to_days(const Month, const Month);
 int greg_cycle_yr (const int yr);
 int num_leaps(int yr, int start_yr = dft_yr);
-vector<int> days_to_date(long int days, int start_yr=dft_yr);
+vector<int> yr_from_days(long int days, int start_yr=dft_yr);
+vector<int> month_from_days(int days, int yr);
+vector<int> get_date(long int days, int start_yr=dft_yr);
 } // namespace Chrono
