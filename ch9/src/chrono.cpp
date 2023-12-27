@@ -4,6 +4,94 @@ int abs(int x) {return (x < 0) ? -x:x;}
 
 namespace Chrono{
 
+// Constructors
+Date::Date()
+    : date(0) {}
+Date::Date(int n)
+    : date(n)
+{
+    if (n < 0) throw DateError("Can't have negative date.\n");
+}
+Date::Date(int y, Month m, int d){
+    try{
+        validate_date(y, m, d);
+    }
+    catch(DateError& e){
+        throw e;
+    }
+    date = date_in_days(y, m, d);
+}
+
+// Methods
+vector<int> Date::today() const{
+    return get_date(date);
+}
+
+int Date::get_year() const {return today()[0];}
+
+Month Date::get_month() const {
+    int month {today()[1]};
+    month += int(Month::jan) - 1;
+    return Month(month);
+}
+
+int Date::get_day() const {return today()[2];}
+
+long int Date::since_default() const {return date;}
+
+void Date::add_day(int n){
+    if (n < 0) throw DateError("Only non-negative values supported.\n");
+    date += n;
+}
+
+void Date::add_month(int n){
+    if (n < 0) throw DateError("Only non-negative values supported.\n");
+    vector<int> curr_date = today();
+    int yr = curr_date[0];
+    int month = curr_date[1];
+    int day = curr_date[2];
+
+    // full years
+    int yrs {n/12};
+    yr += yrs;
+    n -= yrs*12;
+
+    // partial years
+    int till_new_year {12-month};  // Months until Jan
+    if (n >= till_new_year) {
+        ++yr;
+        n -= till_new_year;
+    }
+
+    // Leap Year Adjust
+    month += n;
+    if (int_as_month(month)==Month::feb && day==29 && !is_leap(yr)){
+        month = month_as_int(Month::mar);
+        day = 1;
+    }
+    date = date_in_days(yr, int_as_month(month), day);
+}
+void Date::add_year(int n){
+    if (n < 0) throw DateError("Only non-negative values supported.\n");{}
+    vector<int> curr_date = today();
+    int yr = curr_date[0];
+    Month month = int_as_month(curr_date[1]);
+    int day = curr_date[2];
+    if (month == Month::feb && day == 29 && !is_leap(yr+n)){
+        month = Month::mar;
+        day = 1;
+    }
+    yr += n;
+    date = date_in_days(yr, month, day);
+}
+
+// Exceptions
+Date::DateError::DateError(const string& msg)
+    : err_msg(msg){}
+
+const string& Date::DateError::what(){
+    return err_msg;
+}
 
 //----------------------------------------------------------------------------
 // Helper Function Implementations
@@ -22,6 +110,26 @@ bool is_centennial(const int yr){return !is_leap(yr) && yr % 100 == 0;}
 
 bool is_new_greg(const int yr) {return is_leap(yr) && yr % 400 == 0;}
 
+void validate_date(int y, Month m, int d){
+    /*
+        Check year
+        Check day
+        Check leap year case
+    */
+   int month {month_as_int(m)};
+   if (y < dft_yr) throw Date::DateError("Invalid year.\n");
+   if (
+        d < 1 ||
+        (!is_leap(y) && d > days_in_month[month]) ||
+        (is_leap(y) && (
+            (m == Month::feb && d>days_in_month[month] + 1) ||
+            (m != Month::feb && d > days_in_month[month])))
+   ){
+        throw Date::DateError("Invalid day.\n");
+   }
+   return;
+}
+
 long int date_in_days(const int y, const Month m, const int d, const int start_yr){
     // Assume we begin from 1 Jan. 
     long int elapsed{};
@@ -39,7 +147,8 @@ int months_to_days(const Month start, const Month end){
     // Ex. March to May (31 + 30) = 61 days have elapsed.
     
     int days {};
-    for (int i = int(start); i < int(end); ++i) days += days_in_month[i];
+    int m = month_as_int(start); //
+    for (int i {m}; i < int(end); ++i) days += days_in_month[i];
     return days;
 }
 
@@ -196,6 +305,19 @@ int num_leaps(int yr, int start_yr){
 
 int greg_cycle_yr(int yr) {return yr % one_greg_cycle;}
 
+int month_as_int(const Month& m){
+    // Return month number where January is number 0. Now, the enumeration
+    // start point is irrelevant.
+    return int(m) - (int(Month::jan));
+}
+
+Month int_as_month(int k){
+    int lower {month_as_int(Month::jan)};
+    int upper {month_as_int(Month::dec)};
+    if (k<lower || k>upper) throw Date::DateError("Invalid month number.\n");
+    return Month(k + int(Month::jan));
+}
+
 vector<int>yr_from_days(long int days, int start_yr){
     // Returns the year and remaining days {Year, Remaining} Because the
     // remaining days will be 0 <= x <= 365 (leap yr), we can just use ints
@@ -285,10 +407,10 @@ vector<int> month_from_days(int days, int yr){
 
     if (days > days_per_year) error("<month_from_days>: Max Days (365) Exceeded.\n");
     int remaining {days};
-    int month = int(Month::jan);
+    int month = month_as_int(Month::jan);
     vector<int> month_days = days_in_month;
-    if (is_leap(yr)) ++month_days[int(Month::feb)];
-    for (int i {month - int(Month::jan)}; i < days_in_month.size(); ++i){
+    if (is_leap(yr)) ++month_days[month_as_int(Month::feb)];
+    for (int i {month}; i < days_in_month.size(); ++i){
         if (remaining >= month_days[i])
         {
             remaining -= month_days[i];
@@ -296,7 +418,6 @@ vector<int> month_from_days(int days, int yr){
         }
         else break;
     }
-    month -= (int(Month::jan) - 1);  // Adjust for where January begins in enumeration.
     return vector<int> {month, remaining};  
 }
 
@@ -313,5 +434,53 @@ vector<int> get_date(long int days, int start_yr){
     day += temp_data[1];
 
     return vector<int> {yr, month, day};
+}
+
+WeekDay next_workday(const WeekDay& day){
+    switch(day){
+        case WeekDay::fri: case WeekDay::sat:
+            return WeekDay::mon;
+        default:
+            return WeekDay(int(day) + 1);
+    }
+}
+
+/*
+    TODO: Weekday operations
+    https://artofmemory.com/blog/how-to-calculate-the-day-of-the-week/
+*/
+
+// Overloads
+bool operator==(const Date& a, const Date& b){
+    return a.since_default() == b.since_default();
+}
+
+bool operator!=(const Date& a, const Date& b){
+    return !(a==b);
+}
+
+ostream& operator<<(ostream& os, const Date& dd){
+    vector<int> date = dd.today();  // {yr, month, day}
+    os << '(' 
+        << date[0] << ", "
+        << date[1]+1 << ", "
+        << date[2] << ')'
+        << '\n';
+    return os;
+}
+
+istream& operator>>(istream& is, Date& dd){
+    // PPP Ch9.8
+    int y, m, d;
+    char ch1, ch2, ch3, ch4;
+    is >> ch1 >> y >> ch2 >> m >> ch3 >> d >> ch4;
+    if (!is) return is;
+    if (ch1!= '(' || ch2!=',' || ch3!=',' || ch4!=')') { // oops: format error
+        is.clear(ios_base::failbit);                    // set the fail bit
+        return is;
+    }
+    dd = Date(y, int_as_month(m-1), d);
+    // update dd
+    return is;
 }
 } // namespace Chrono

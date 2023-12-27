@@ -44,26 +44,28 @@ constexpr int one_greg_cycle {400};
 //----------------------------------------------------------------------------
 class Date{
     public:
+        // Exceptions
+        class DateError{
+            public: 
+                DateError(const string&);
+                const string& what();
+            private:
+                string err_msg;
+         };
         // Constructors
         Date();
         Date(int n);
         Date(int y, Month m, int d);
         
         // Methods
-        void today() const;
-        void tomorrow() const;
+        vector<int> today() const;
         Month get_month() const;
         int get_year() const;
         int get_day() const;
-
-        // Exceptions
-        class DateError{
-            public: 
-                DateError(const string& = "");
-                void what();
-            private:
-                string err_msg;
-         };
+        long int since_default() const;
+        void add_day(int);
+        void add_month(int);
+        void add_year(int);
     private:
         long int date; // days since default date
 };
@@ -74,12 +76,22 @@ bool is_leap(const Date&);
 bool is_leap(const int);
 bool is_centennial(const int);
 bool is_new_greg(const int);
+void validate_date(int y, Month m, int d);
 long int date_in_days(const int y, const Month m, const int d, const int start_yr=dft_yr);
 long int yr_to_days(const int yr, const int start_yr=dft_yr);
 int months_to_days(const Month, const Month);
 int greg_cycle_yr (const int yr);
 int num_leaps(int yr, int start_yr = dft_yr);
+int month_as_int(const Month&);
+Month int_as_month(int);
 vector<int> yr_from_days(long int days, int start_yr=dft_yr);
 vector<int> month_from_days(int days, int yr);
 vector<int> get_date(long int days, int start_yr=dft_yr);
+WeekDay next_workday(const WeekDay&);
+
+// Overloads
+bool operator==(const Date& a, const Date& b);
+bool operator!=(const Date& a, const Date& b);
+ostream& operator<<(ostream& os, const Date& dd);
+istream& operator>>(istream& is, Date& dd);
 } // namespace Chrono
