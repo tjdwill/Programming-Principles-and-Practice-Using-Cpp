@@ -54,7 +54,7 @@ class Date{
          };
         // Constructors
         Date();
-        Date(long int n);
+        Date(int n);
         Date(int y, Month m, int d);
         
         // Methods

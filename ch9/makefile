@@ -5,7 +5,9 @@ src_dir = ./src
 test_dir = ./tests
 ex02_objs = name_pairs.o test_name_pairs.o
 chrono_test_objs = chrono.o chrono_test.o
-objs = $(ex02_objs) $(chrono_test_objs)
+book_test_objs = chrono.o book.o book_test.o
+biblio_objects = book.o
+objs = $(ex02_objs) $(chrono_test_objs) $(book_test_objs) 
 
 
 # Search Paths
@@ -19,6 +21,13 @@ chrono_test: $(chrono_test_objs) chrono.hpp | $(output_dir)
 	clang++ $(chrono_test_objs) -o $(output_dir)/$@ --std=c++11 -Wall -Wpedantic
 	$(output_dir)/$@
 
+# Book things
+book_test: $(book_test_objs) | $(output_dir)
+	clang++ $(book_test_objs) -o $(output_dir)/$@ --std=c++11 -Wall -Wpedantic 
+	$(output_dir)/$@
+book.o: chrono.o biblio.hpp 
+
+# Name Pairs
 test_name_pairs: $(ex02_objs) | $(output_dir)
 	clang++ $(ex02_objs) -o $(output_dir)/$@ --std=c++11 -Wall -Wpedantic
 	$(output_dir)/$@

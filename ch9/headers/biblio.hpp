@@ -1,4 +1,9 @@
-#include "chrono.hpp"
+/*
+    I am aware that include guards exist and should be used to prevent
+    duplication and coupling, but we have yet to be introduced to that
+    in the book, so I am using a highly-coupled structure as a result :(
+*/
+#include "../headers/chrono.hpp"
 
 
 namespace Biblio{
@@ -16,24 +21,30 @@ class Book{
         Book(string, string, Genre, string, Chrono::Date);
 
         // Methods
-        string title() const;
-        string author() const;
-        Genre genre() const;
-        string isbn() const;
-        Chrono::Date copyright() const;
+        string get_title() const;
+        string get_author() const;
+        Genre get_genre() const;
+        string get_isbn() const;
+        Chrono::Date get_copyright() const;
         bool is_available();
         void checkout();
         void return_book();
         
         // Error(s)
-        class BookError: Chrono::Date::DateError{};  // try inheritance
+        class BookError{
+            public: 
+                BookError(const string&);
+                const string& what();
+            private:
+                string err_msg;
+        };  // try inheritance
     private:
         string title;
         string author;
         Genre genre;
         string isbn;
         Chrono::Date copyright;  // Dates < 1970???
-        bool available;
+        bool available {true};
 };
 
 // Helper Functions

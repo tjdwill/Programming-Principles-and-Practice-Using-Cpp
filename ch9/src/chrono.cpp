@@ -7,7 +7,7 @@ namespace Chrono{
 // Constructors
 Date::Date()
     : date(0) {}
-Date::Date(long int n)
+Date::Date(int n)
     : date(n)
 {
     if (n < 0) throw DateError("Can't have negative date.\n");
