@@ -1,0 +1,8 @@
+if buffer is bad() or the source has a problem, we give up; otherwise, we clear
+buffer and try again. we need to clear buffer because we get into that “replenish
+loop” only if a read failed, typically because we hit eof() for buffer; that is, there
+were no more characters in buffer for us to read. dealing with stream state is
+always messy and it is often the source of subtle errors that require tedious debug-
+ging. fortunately the rest of the replenish loop is pretty straightforward:
+
+harry is a great guy!
