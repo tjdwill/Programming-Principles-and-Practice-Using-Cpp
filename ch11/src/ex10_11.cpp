@@ -1,7 +1,7 @@
 /*
     @title: PPP Ex.11.10, 11
     @author: tjdwill
-    @date: 16 January 2024
+    @date: 18 January 2024
     @spec: 
         Write a program splits strings
 */
