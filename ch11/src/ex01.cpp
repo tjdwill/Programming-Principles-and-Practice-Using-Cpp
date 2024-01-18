@@ -38,8 +38,7 @@ string strip_extension(string s){
 
 
 int main()
-try
-{
+try{
     // File setup
     string filename {};
 
