@@ -38,7 +38,8 @@ string strip_extension(string s){
 
 
 int main()
-try{
+try
+{
     // File setup
     string filename {};
 
@@ -67,11 +68,5 @@ try{
         outfile << tolower(line) << '\n';
     }
 }
-catch(runtime_error& e) {
-    cerr << "Error: " << e.what() << '\n';
-    return 1;
-}
-catch(...){
-    cerr << "Unanticipated error.\n";
-    return 2;
-}
+catch(runtime_error& e) {cerr << "Error: " << e.what() << '\n';}
+catch(...){cerr << "Unanticipated error.\n";}

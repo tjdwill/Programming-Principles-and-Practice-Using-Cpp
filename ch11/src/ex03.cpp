@@ -1,7 +1,7 @@
 /*
     @title: PPP Ex.11.3
     @author: tjdwill
-    @date: 17 January 2024
+    @date: 16 January 2024
     @spec: 
         Write a program that removes all vowels from a file ("disemvowels").
         For example, `Once upon a time!` becomes `nc pn tm!`
@@ -32,11 +32,5 @@ try{
     }
     infile.clear();
 }
-catch(runtime_error& e) {
-    cerr << "Error: " << e.what() << '\n';
-    return 1;
-}
-catch(...){
-    cerr << "Unanticipated error.\n";
-    return 2;
-}
+catch(runtime_error& e) {cerr << "Error: " << e.what() << '\n';}
+catch(...){cerr << "Unanticipated error.\n";}
