@@ -9,10 +9,12 @@
 
 char lower(char c)
 {
-    constexpr char upper_to_lower {'a'-'A'};
     if (c < 'A' || c > 'Z') return c;
-    else return c + upper_to_lower;
+    
+    constexpr char upper_to_lower {'a'-'A'};
+    return c + upper_to_lower;
 }
+
 void to_lower(char* s)
 {
     char* curr {s};
