@@ -30,6 +30,7 @@ int main()
     using std::cout;
     char old[] = "HELLO! I'm Testing My program for lowering Strings!\nABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+\n";
     cout << old << '\n';
+    to_lower(nullptr);
     to_lower(old);
     cout << old << '\n';
 }
