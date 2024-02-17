@@ -19,9 +19,9 @@ int main()
     cout << "Bool size: " << &arr_bool[1] << " - " << arr_bool  << '\n';
 
     // Better method
-    unsigned long long int sz_int {(unsigned long long int)&arr_int[1] - (unsigned long long int)arr_int};
-    unsigned long long int sz_double {(unsigned long long int)&arr_double[1] - (unsigned long long int)arr_double};
-    unsigned long long int sz_bool {(unsigned long long int)&arr_bool[1] - (unsigned long long int)arr_bool};
+    unsigned long long int sz_int { (unsigned long long int) &arr_int[1] - (unsigned long long int) arr_int };
+    unsigned long long int sz_double { (unsigned long long int) &arr_double[1] - (unsigned long long int) arr_double };
+    unsigned long long int sz_bool { (unsigned long long int) &arr_bool[1] - (unsigned long long int) arr_bool };
 
     cout << "\nCorrect `int` size:\t" << sz_int;
     cout << "\nCorrect `double` size:\t" << sz_double;
