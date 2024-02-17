@@ -3,8 +3,8 @@
 /*
     @author: tjdwill
     @date: 16 February 2024
-    @title: PPP Exercise 17.03
-        Write a function that copies C-style strings
+    @title: PPP Exercise 17.05
+        Write a function that finds C-style sub-strings
 */
 
 unsigned int len_str(const char* s)
@@ -20,6 +20,22 @@ unsigned int len_str(const char* s)
    ++length;  //include terminator
     return length;  
 }
+
+char* fs_strdup(const char* s)  // 'fs' prefix to remind myself that the output is on the free store and must be deleted.
+{
+    // Copies C-style strings
+    if (!s) return nullptr;
+
+    unsigned int sz {len_str(s)};
+    char* cpy = new char[sz] {};
+    for (unsigned int i{}; i < sz; ++i)
+    {
+        cpy[i] = s[i];
+    }
+
+    return cpy;
+}
+
 
 bool is_substring(const char* ss, const char* str)
 {
@@ -52,7 +68,11 @@ char* findx(const char* parent, const char* ss)
     for (unsigned int i {}; i < sz_par; ++i)
     {
         if (is_substring(ss, &parent[i]))
-            return const_cast<char*>(&parent[i]);
+        {
+            char* remaining {fs_strdup(&parent[i])};
+            return remaining;
+        }
+            
     }
     return nullptr;
 }
@@ -73,6 +93,7 @@ int main()
         cout << "\nHere's where we found the sub-string:\n\t";
         cout << ss_head << '\n';
         cout << "Length of reamaining base string:\t" << len_str(ss_head) << '\n';
+        delete[] ss_head;
     }
 }
     
