@@ -18,7 +18,7 @@ char lower(char c)
 void to_lower(char* s)
 {
     char* curr {s};
-    while (s != nullptr && *s != 0)  // guard against dereferencing nullptr
+    while (s && *s != 0)  // guard against dereferencing nullptr
     {
         *s = lower(*s);
         ++s;
