@@ -96,4 +96,16 @@ int main()
         delete[] ss_head;
     }
 }
-    
+
+/*
+*    ## Program Output ##
+*    
+*     Hi, I'm testing my program for copying strings.
+*     Base string length:	49
+*     Desired substring:	rog
+*
+*     Here's where we found the sub-string:
+* 	    rogram for copying strings.
+*
+*     Length of reamaining base string:	29
+*/
