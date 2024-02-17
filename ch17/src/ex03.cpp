@@ -59,6 +59,6 @@ int main()
     lower and upper case letters are indeed distanced by the same factor for all letter pairs.
 
     This is a simple problem to solve practically, but attempting to solve the problem for a more general case leads to problems due to my
-    limited understanding of the language. Is there a way to (programmatically) determine how characters are relate to one another
+    limited understanding of the language. Is there a way to (programmatically) determine how characters relate to one another
     at compile time?
 */
