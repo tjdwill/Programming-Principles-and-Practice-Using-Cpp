@@ -21,7 +21,7 @@ unsigned int len_str(const char* s)
     return length;  
 }
 
-char* fs_strdup(const char* s)
+char* fs_strdup(const char* s)  // 'fs' prefix to remind myself that the output is on the free store and must be deleted.
 {
     // Copies C-style strings
     if (!s) return nullptr;
