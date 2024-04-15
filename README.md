@@ -1,4 +1,5 @@
 # Programming: Principles and Practice Using C++
+**On hold for now as I am learning Rust. I will return.**
 
 Selected exercises for Bjarne Stroustrup's *Programming: Principles and Practice Using C++ (2nd ed.)*
 
