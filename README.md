@@ -1,5 +1,5 @@
 # Programming: Principles and Practice Using C++
-**On hold for now as I am learning Rust. I will return.**
+**This repo is now archived. I'm happy to say that I've progressed in C++ via other projects.**
 
 Selected exercises for Bjarne Stroustrup's *Programming: Principles and Practice Using C++ (2nd ed.)*
 
